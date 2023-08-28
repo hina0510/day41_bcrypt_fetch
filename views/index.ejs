@@ -1,0 +1,98 @@
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script>
+    let content;
+    window.onload=()=>{
+        content = document.getElementById("content");
+        const getMembers = document.querySelector("#getMembers");
+        getMembers.addEventListener("click", getMember); //onclick과 비슷함
+
+        const registerView = document.querySelector("#registerView");
+        registerView.addEventListener("click", regView); 
+    }
+    const regView=()=>{
+        let msg = `<form id="form">
+                <input type="text" name="id" placeholder="input id">
+                <input type="text" name="pwd" placeholder="input pwd">
+                <input type="text" name="name" placeholder="input name">
+                <input type="text" name="addr" placeholder="input addr"><br>
+                <input type="button" onclick ="register()" value="등록">
+            </form>`;
+        content.innerHTML=msg;
+    }
+    const register=()=>{
+        const arr = $("#form").serializeArray();
+        console.log(arr);
+        console.log(arr[0].name);
+        let data={}
+        /*
+        for(var i=0; i<arr.length; i++){
+            data[arr[i].name]=arr[i].value;
+        }
+        */
+       arr.forEach(d=>{data[d.name] = d.value});
+        console.log("data=>", data);
+        fetch("/register", {
+        method:"post", 
+        headers:{"Content-Type":"application/json"},    //json은 key:value방식
+        body:JSON.stringify(data)   //data를 string으로 변환
+    })
+        .then(res=>res.json())
+        .then(result=>{
+            if(result===1){
+                alert("회원가입 성공");
+                getMember();
+            }
+        })
+    }
+    const getMember=()=>{
+        //alert("get 함수 호출");
+        fetch("/get_members", {method:"get"})
+        .then(res=>res.json())
+        .then(data=>{
+            console.log(data);
+            let msg = "<table border='1'>";
+            msg+="<tr><th>아이디</th><th>이름</th><th>주소</th></tr>";
+            data.forEach(member => {
+                msg+="<tr>";
+                msg+=`<td>${member.id}</td>
+                <td>${member.name}</td>
+                <td>${member.addr}</td>`;
+                msg+="</tr>";
+            });
+            msg+="</table>";
+            content.innerHTML = msg;
+        })
+    }
+    function del(){
+        const delId=document.getElementById("del_id");
+        fetch("/delete", {
+            method:"delete",
+            headers : {"Content-Type": "application/json"}, 
+            body : JSON.stringify({id : delId.value})
+        })
+        .then(res=>res.json())
+        .then(result =>{
+            if(result===1){
+                getMember();
+            }
+        })
+    }
+    function search(){
+        const sId=document.getElementById("s_id");
+        fetch("/search?id="+$("#s_id").val(), {method:"get"})
+        .then(res=>res.json())
+        .then(data =>{
+            console.log("search : ", data);
+            })
+        }
+</script><!--SPA : 한 페이지에 구성하는 패턴-->
+<div id="content"></div>
+<hr>
+<button type="button" id="getMembers">목록보기</button>
+<button type="button" id="registerView">데이터 추가</button>
+<hr>
+<input type="text" id="del_id">
+<button type="button" onclick="del()">삭제</button>
+<hr>
+<input type="text" id="s_id">
+<button type="button" onclick="search()">조회</button>

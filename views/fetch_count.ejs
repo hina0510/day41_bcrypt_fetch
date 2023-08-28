@@ -1,0 +1,24 @@
+<script>
+    async function test(){
+        const res = await fetch("/get_count");
+        console.log(res);
+        const data = await res.json();
+        console.log("data : ", data);
+        document.getElementById("cnt").innerHTML = data.cnt
+        /*
+        fetch("/get_count")    //fetch_count 페이지 내에서 get_count 갱신
+        .then(res=>{ 
+            console.log(res);
+            return res.json();  //데이터 형식으로 바꿈
+        })
+        .then(data=>{
+            console.log("data : ", data.cnt);
+            document.getElementById("cnt").innerHTML = data.cnt
+        })//저장
+        */
+    }
+</script>
+<h1>일</h1> <h1>일</h1> <h1>일</h1> <h1>일</h1>
+<h1>일</h1> <h1>일</h1> <h1>일</h1> <h1>일</h1>
+<button onclick="test()">클릭</button>
+<label id="cnt">0</label>
